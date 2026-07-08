@@ -1,0 +1,32 @@
+{
+  "name": "addax-perps-keepers",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3010",
+    "build": "next build",
+    "serve": "next start --port 3010",
+    "start": "tsx src/bots/run-liquidation-watch.ts",
+    "once": "tsx src/bots/run-liquidation-keeper.ts",
+    "db:init": "tsx src/bots/ensure-db.ts",
+    "db:reset": "tsx src/bots/reset-supabase.ts",
+    "db:cursor": "tsx src/bots/reset-indexer-cursor.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.3",
+    "dotenv": "^17.4.2",
+    "next": "16.2.4",
+    "pg": "^8.20.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "viem": "^2.48.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  }
+}
