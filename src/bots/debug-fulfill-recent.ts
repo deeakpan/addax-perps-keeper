@@ -4,6 +4,8 @@ import { config } from "../lib/config";
 
 const chain = {
   id: 4441,
+  name: "LiteForge",
+  nativeCurrency: { name: "zkLTC", symbol: "zkLTC", decimals: 18 },
   rpcUrls: { default: { http: [config.rpcUrl] } },
 } as const;
 

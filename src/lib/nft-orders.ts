@@ -52,13 +52,16 @@ function matchedSkipRevert(msg: string): string | null {
   return null;
 }
 
-function parseOrderId(logs: readonly { data: `0x${string}`; topics: `0x${string}`[] }[]): bigint | null {
+function parseOrderId(
+  logs: readonly { data: `0x${string}`; topics: readonly `0x${string}`[] }[],
+): bigint | null {
   for (const entry of logs) {
+    if (entry.topics.length === 0) continue;
     try {
       const decoded = decodeEventLog({
         abi: gtradeTradingAbi,
         data: entry.data,
-        topics: entry.topics,
+        topics: entry.topics as [`0x${string}`, ...`0x${string}`[]],
       });
       if (decoded.eventName === "NftOrderInitiated" && decoded.args) {
         const { orderId } = decoded.args as { orderId: bigint };

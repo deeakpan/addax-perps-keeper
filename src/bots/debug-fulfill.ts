@@ -83,7 +83,9 @@ async function main() {
     args: [1n],
   });
   console.log("pending raw:", pending);
-  console.log("block:", pending.block, "leverage:", pending.trade?.leverage ?? (pending as unknown as { trade: bigint[] }).trade?.[7]);
+  const trade = pending[0];
+  const block = pending[1];
+  console.log("block:", block, "leverage:", trade.leverage);
 
   const result = await fulfillPendingMarketOrders(publicClient, wallet, 23307679n, 23307679n);
   console.log("fulfill:", result);

@@ -27,6 +27,8 @@ async function main() {
 
   const chain = {
     id: config.chainId,
+    name: "LiteForge",
+    nativeCurrency: { name: "zkLTC", symbol: "zkLTC", decimals: 18 },
     rpcUrls: { default: { http: [config.rpcUrl] } },
   } as const;
   const publicClient = createPublicClient({ chain, transport: http(config.rpcUrl) });
