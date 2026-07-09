@@ -1,0 +1,41 @@
+{
+  "chainId": 4441,
+  "deployBlock": 24989478,
+  "dia": {
+    "oracle": "0xFf856a958eFA7965A4dFC2BFb09dDbc9EABe9aAb",
+    "addaxPriceFeed": "0xFf856a958eFA7965A4dFC2BFb09dDbc9EABe9aAb"
+  },
+  "tokens": {
+    "usdc": "0xA6b7A782Fc4349914dADde5b8A8A8B1daDFBF6DB",
+    "addx": "0xf6078Be81aBCC95BAC306356963E7adB986783f9",
+    "wzkLtc": "0xA52F83592b9216C574e11324d4468F078aEA05BE"
+  },
+  "contracts": {
+    "storage": "0xe4D06BeE42d9B8CbF3d95520dCC2E522bF67D2a3",
+    "trading": "0x6F23a6500a211F1fC9684672C70952C8a6221b1B",
+    "callbacks": "0x62920E443abFEFb91126FAC8F4D2e1Db60aA5341",
+    "pairInfos": "0xc491c999eB5734eCFBe0E3AAc32DED28CA3259B7",
+    "priceAggregator": "0x3f0fA5CeC8B45111777baB68E37155ca0edC6400",
+    "nftRewards": "0x12ECA312025f66144d2A7Ef479558786cA47B613",
+    "gWzkLTCStack": {
+      "storage": "0x0bab0C9354392989a20Ad3D739Bd1dE30cC82B1F",
+      "trading": "0x63Ea6b78E663a296b1A86A9Db684F008aCD88f01",
+      "callbacks": "0x17D04b545b80deA3F60295C70Fb35485aB7bac68",
+      "pairInfos": "0x93Fd0177f0b03891D5A114E261DDA53fB8b7b032",
+      "priceAggregator": "0x182A16a127cfD8a1b4EaE0a5653df467B3E6456E",
+      "nftRewards": "0x81c888da87Da1A07c3917985461EE1f88acbB74c"
+    },
+    "gADDXStack": {
+      "storage": "0xfa63B98b6feEBD766d8863b25d2dc0d5c668b8Ad",
+      "trading": "0x498771e39066926D424B7fB939D93F61bad3E040",
+      "callbacks": "0xe3E60155b444356C14E9A0088A1882a6F9430B49",
+      "pairInfos": "0xb82c0b371233588ee72c841eb6178D87d57F89Ce",
+      "priceAggregator": "0x61af9FBbEA6D011Cea8d1FE6c674f89bD8eF5D8F",
+      "nftRewards": "0x20b610d7c8d5596a1a2C76D85C1f3A698a7e1E54"
+    }
+  },
+  "keeper": {
+    "nftId": 1,
+    "nftType": 1
+  }
+}

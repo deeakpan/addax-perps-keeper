@@ -63,7 +63,15 @@ function loadDeployments(): GtradeDeployments | null {
   return JSON.parse(readFileSync(p, "utf8")) as GtradeDeployments;
 }
 
+function loadRepoStacksConfig(): GtradeDeployments | null {
+  const p = path.join(process.cwd(), "config", "stacks.json");
+  if (!existsSync(p)) return null;
+  return JSON.parse(readFileSync(p, "utf8")) as GtradeDeployments;
+}
+
+const repoConfigured = loadRepoStacksConfig();
 const deployed = loadDeployments();
+const addressSource = repoConfigured ?? deployed;
 
 function addrFromEnvOrDeploy(
   envKey: string,
@@ -91,27 +99,27 @@ function parsePositiveInt(raw: string | undefined): number | undefined {
 }
 
 const keeperNftId =
-  parsePositiveInt(process.env.PERPS_KEEPER_NFT_ID) ?? deployed?.keeper?.nftId ?? 1;
+  parsePositiveInt(process.env.PERPS_KEEPER_NFT_ID) ?? addressSource?.keeper?.nftId ?? 1;
 const keeperNftType =
-  parsePositiveInt(process.env.PERPS_KEEPER_NFT_TYPE) ?? deployed?.keeper?.nftType ?? 1;
+  parsePositiveInt(process.env.PERPS_KEEPER_NFT_TYPE) ?? addressSource?.keeper?.nftType ?? 1;
 
 function buildStacks(): KeeperStackConfig[] {
   const stacks: KeeperStackConfig[] = [];
 
-  const usdcStorage = addrFromEnvOrDeploy("PERPS_STORAGE", deployed?.contracts.storage);
-  const usdcTrading = addrFromEnvOrDeploy("PERPS_TRADING", deployed?.contracts.trading);
-  const usdcCallbacks = addrFromEnvOrDeploy("PERPS_CALLBACKS", deployed?.contracts.callbacks);
-  const usdcPairInfos = addrFromEnvOrDeploy("PERPS_PAIR_INFOS", deployed?.contracts.pairInfos);
+  const usdcStorage = addrFromEnvOrDeploy("PERPS_STORAGE", addressSource?.contracts.storage);
+  const usdcTrading = addrFromEnvOrDeploy("PERPS_TRADING", addressSource?.contracts.trading);
+  const usdcCallbacks = addrFromEnvOrDeploy("PERPS_CALLBACKS", addressSource?.contracts.callbacks);
+  const usdcPairInfos = addrFromEnvOrDeploy("PERPS_PAIR_INFOS", addressSource?.contracts.pairInfos);
   const usdcAggregator = addrFromEnvOrDeploy(
     "PERPS_PRICE_AGGREGATOR",
-    deployed?.contracts.priceAggregator,
+    addressSource?.contracts.priceAggregator,
   );
   const usdcNftRewards = addrFromEnvOrDeploy(
     "PERPS_NFT_REWARDS",
-    deployed?.contracts.nftRewards,
+    addressSource?.contracts.nftRewards,
   );
   const usdc =
-    addrFromEnvOrDeploy("PERPS_USDC", deployed?.tokens.usdc) ??
+    addrFromEnvOrDeploy("PERPS_USDC", addressSource?.tokens.usdc) ??
     ("0x72F4efAC9133d28fa05aEbc9edCd8fC3dE14BB50" as const);
 
   if (usdcStorage && usdcTrading && usdcCallbacks && usdcPairInfos && usdcAggregator && usdcNftRewards) {
@@ -131,30 +139,30 @@ function buildStacks(): KeeperStackConfig[] {
 
   const wzkStorage = addrFromEnvOrDeploy(
     "PERPS_WZKLTC_STORAGE",
-    deployed?.contracts.gWzkLTCStack?.storage,
+    addressSource?.contracts.gWzkLTCStack?.storage,
   );
   const wzkTrading = addrFromEnvOrDeploy(
     "PERPS_WZKLTC_TRADING",
-    deployed?.contracts.gWzkLTCStack?.trading,
+    addressSource?.contracts.gWzkLTCStack?.trading,
   );
   const wzkCallbacks = addrFromEnvOrDeploy(
     "PERPS_WZKLTC_CALLBACKS",
-    deployed?.contracts.gWzkLTCStack?.callbacks,
+    addressSource?.contracts.gWzkLTCStack?.callbacks,
   );
   const wzkPairInfos = addrFromEnvOrDeploy(
     "PERPS_WZKLTC_PAIR_INFOS",
-    deployed?.contracts.gWzkLTCStack?.pairInfos,
+    addressSource?.contracts.gWzkLTCStack?.pairInfos,
   );
   const wzkAggregator = addrFromEnvOrDeploy(
     "PERPS_WZKLTC_PRICE_AGGREGATOR",
-    deployed?.contracts.gWzkLTCStack?.priceAggregator,
+    addressSource?.contracts.gWzkLTCStack?.priceAggregator,
   );
   const wzkNftRewards = addrFromEnvOrDeploy(
     "PERPS_WZKLTC_NFT_REWARDS",
-    deployed?.contracts.gWzkLTCStack?.nftRewards,
+    addressSource?.contracts.gWzkLTCStack?.nftRewards,
   );
   const wzkLtc =
-    addrFromEnvOrDeploy("PERPS_WZKLTC", deployed?.tokens.wzkLtc) ??
+    addrFromEnvOrDeploy("PERPS_WZKLTC", addressSource?.tokens.wzkLtc) ??
     ("0xA52F83592b9216C574e11324d4468F078aEA05BE" as const);
 
   if (wzkStorage && wzkTrading && wzkCallbacks && wzkPairInfos && wzkAggregator && wzkNftRewards) {
@@ -174,30 +182,30 @@ function buildStacks(): KeeperStackConfig[] {
 
   const addxStorage = addrFromEnvOrDeploy(
     "PERPS_ADDX_STORAGE",
-    deployed?.contracts.gADDXStack?.storage,
+    addressSource?.contracts.gADDXStack?.storage,
   );
   const addxTrading = addrFromEnvOrDeploy(
     "PERPS_ADDX_TRADING",
-    deployed?.contracts.gADDXStack?.trading,
+    addressSource?.contracts.gADDXStack?.trading,
   );
   const addxCallbacks = addrFromEnvOrDeploy(
     "PERPS_ADDX_CALLBACKS",
-    deployed?.contracts.gADDXStack?.callbacks,
+    addressSource?.contracts.gADDXStack?.callbacks,
   );
   const addxPairInfos = addrFromEnvOrDeploy(
     "PERPS_ADDX_PAIR_INFOS",
-    deployed?.contracts.gADDXStack?.pairInfos,
+    addressSource?.contracts.gADDXStack?.pairInfos,
   );
   const addxAggregator = addrFromEnvOrDeploy(
     "PERPS_ADDX_PRICE_AGGREGATOR",
-    deployed?.contracts.gADDXStack?.priceAggregator,
+    addressSource?.contracts.gADDXStack?.priceAggregator,
   );
   const addxNftRewards = addrFromEnvOrDeploy(
     "PERPS_ADDX_NFT_REWARDS",
-    deployed?.contracts.gADDXStack?.nftRewards,
+    addressSource?.contracts.gADDXStack?.nftRewards,
   );
   const addx =
-    addrFromEnvOrDeploy("PERPS_ADDX", deployed?.tokens.addx) ??
+    addrFromEnvOrDeploy("PERPS_ADDX", addressSource?.tokens.addx) ??
     ("0xf6078Be81aBCC95BAC306356963E7adB986783f9" as const);
 
   if (addxStorage && addxTrading && addxCallbacks && addxPairInfos && addxAggregator && addxNftRewards) {
@@ -238,7 +246,7 @@ export const config = {
     ? parseInt(process.env.PERPS_DEPLOY_BLOCK, 10)
     : process.env.PERPS_VAULT_DEPLOY_BLOCK
       ? parseInt(process.env.PERPS_VAULT_DEPLOY_BLOCK, 10)
-      : deployed?.deployBlock,
+      : addressSource?.deployBlock,
   bootstrapLookbackBlocks: parseInt(process.env.PERPS_BOOTSTRAP_LOOKBACK_BLOCKS ?? "50", 10),
   maxCatchupBlocks: parseInt(process.env.PERPS_MAX_CATCHUP_BLOCKS ?? "10000", 10),
   syncConfirmations: parseInt(process.env.PERPS_SYNC_CONFIRMATIONS ?? "3", 10),
@@ -260,8 +268,8 @@ export const config = {
   usdc: primary?.collateralToken,
   diaOracle:
     (process.env.PERPS_DIA_ORACLE as `0x${string}` | undefined) ??
-    (deployed?.dia?.addaxPriceFeed as `0x${string}` | undefined) ??
-    (deployed?.dia?.oracle as `0x${string}` | undefined) ??
+    (addressSource?.dia?.addaxPriceFeed as `0x${string}` | undefined) ??
+    (addressSource?.dia?.oracle as `0x${string}` | undefined) ??
     DIA_ORACLE,
   keeperNftId: primary?.keeperNftId,
   keeperNftType: primary?.keeperNftType,
@@ -275,7 +283,7 @@ export function stackByStorage(storage: string): KeeperStackConfig | undefined {
 export function assertIndexerConfig() {
   if (config.stacks.length === 0) {
     throw new Error(
-      "No perps stacks configured — check liteforge-gtrade.json or PERPS_* env vars",
+      "No perps stacks configured — check perps-keepers/config/stacks.json or PERPS_* env vars",
     );
   }
   if (!config.supabaseUrl || !config.supabaseServiceRoleKey) {
