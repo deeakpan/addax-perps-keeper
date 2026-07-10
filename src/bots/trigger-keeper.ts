@@ -18,6 +18,7 @@ import { fetchPairMarkPrice } from "../lib/price";
 import { config } from "../lib/config";
 import { log } from "../lib/logger";
 import { triggerNftOrder } from "../lib/nft-orders";
+import { loadPositionRowFromChain } from "../lib/position-from-chain";
 
 export type TriggerKeeperResult = {
   scannedPositions: number;
@@ -197,6 +198,7 @@ export async function runTriggerKeeper(
         orderId: trigger.orderId,
       });
       result.txs.push(trigger.fulfillTx);
+      await positionStore.removeOpen(row.position_key);
       log.info(
         `[${stack.id}] ${triggerType.toUpperCase()} triggered — ${row.position_key} order ${trigger.orderId}`,
       );
@@ -275,6 +277,19 @@ export async function runTriggerKeeper(
         orderId: trigger.orderId,
       });
       result.txs.push(trigger.fulfillTx);
+      const blockNum = Number(await publicClient.getBlockNumber());
+      const positionRow = await loadPositionRowFromChain(
+        publicClient,
+        stack,
+        trader,
+        pairIndex,
+        limitIndex,
+        blockNum,
+      );
+      if (positionRow) {
+        await positionStore.upsertOpen(positionRow);
+      }
+      await limitOrderStore.remove(limit.order_key);
       log.info(
         `[${stack.id}] open-limit triggered — ${limit.order_key} order ${trigger.orderId}`,
       );

@@ -54,6 +54,25 @@ class LimitOrderStore {
     return this.count();
   }
 
+  /** Refresh pending limits from Supabase (UI writes rows directly on testnet). */
+  async reloadFromSupabase(): Promise<number> {
+    if (!this.initialized) return 0;
+    const supabase = createSupabaseService();
+    const storages = config.stacks.map((s) => s.storage.toLowerCase());
+    const { data, error } = await supabase
+      .from("perp_open_limit_orders")
+      .select("*")
+      .eq("chain_id", config.chainId)
+      .in("vault_address", storages);
+    if (error) throw error;
+
+    this.orders = {};
+    for (const row of (data ?? []) as PerpOpenLimitOrderRow[]) {
+      this.orders[row.order_key] = row;
+    }
+    return this.count();
+  }
+
   private assertReady() {
     if (!this.initialized) {
       throw new Error("LimitOrderStore: call loadFromSupabaseOnStart() first");

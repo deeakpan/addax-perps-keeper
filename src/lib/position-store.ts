@@ -57,7 +57,6 @@ class PositionStore {
     return cursor;
   }
 
-  /** One-time on bot start: hydrate memory + per-stack block cursors from Supabase. */
   async loadFromSupabaseOnStart(): Promise<{
     positions: number;
     lastBlock: number;
@@ -101,6 +100,28 @@ class PositionStore {
       lastBlock: this.getLastProcessedBlock(),
       hasIndexerState: this.hasPersistedIndexerState(),
     };
+  }
+
+  /** Refresh open positions from Supabase (UI writes rows directly on testnet). */
+  async reloadFromSupabase(): Promise<number> {
+    if (!this.initialized) return 0;
+    const chainId = config.chainId;
+    const supabase = createSupabaseService();
+    const storages = config.stacks.map((s) => s.storage.toLowerCase());
+
+    const { data: rows, error: posError } = await supabase
+      .from("perp_open_positions")
+      .select("*")
+      .eq("chain_id", chainId)
+      .in("vault_address", storages);
+
+    if (posError) throw posError;
+
+    this.positions = {};
+    for (const row of (rows ?? []) as PerpOpenPositionRow[]) {
+      this.positions[row.position_key] = row;
+    }
+    return this.count();
   }
 
   private assertReady() {
