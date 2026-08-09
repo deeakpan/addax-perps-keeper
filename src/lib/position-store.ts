@@ -64,19 +64,27 @@ class PositionStore {
   }> {
     const chainId = config.chainId;
     const supabase = createSupabaseService();
-    const storages = config.stacks.map((s) => s.storage.toLowerCase());
 
-    const { data: rows, error: posError } = await supabase
-      .from("perp_open_positions")
-      .select("*")
-      .eq("chain_id", chainId)
-      .in("vault_address", storages);
-
-    if (posError) throw posError;
-
-    this.positions = {};
-    for (const row of (rows ?? []) as PerpOpenPositionRow[]) {
-      this.positions[row.position_key] = row;
+    // Prefer Goldsky open-set; fall back to Supabase if subgraph fails.
+    try {
+      const { fetchOpenPositionsFromGoldsky } = await import("./goldsky-positions");
+      const rows = await fetchOpenPositionsFromGoldsky();
+      this.positions = {};
+      for (const row of rows) {
+        this.positions[row.position_key] = row;
+      }
+    } catch {
+      const storages = config.stacks.map((s) => s.storage.toLowerCase());
+      const { data: rows, error: posError } = await supabase
+        .from("perp_open_positions")
+        .select("*")
+        .eq("chain_id", chainId)
+        .in("vault_address", storages);
+      if (posError) throw posError;
+      this.positions = {};
+      for (const row of (rows ?? []) as PerpOpenPositionRow[]) {
+        this.positions[row.position_key] = row;
+      }
     }
 
     for (const stack of config.stacks) {
@@ -102,26 +110,36 @@ class PositionStore {
     };
   }
 
-  /** Refresh open positions from Supabase (UI writes rows directly on testnet). */
+  /** Refresh open positions from Goldsky (fallback Supabase). */
   async reloadFromSupabase(): Promise<number> {
     if (!this.initialized) return 0;
-    const chainId = config.chainId;
-    const supabase = createSupabaseService();
-    const storages = config.stacks.map((s) => s.storage.toLowerCase());
+    try {
+      const { fetchOpenPositionsFromGoldsky } = await import("./goldsky-positions");
+      const rows = await fetchOpenPositionsFromGoldsky();
+      this.positions = {};
+      for (const row of rows) {
+        this.positions[row.position_key] = row;
+      }
+      return this.count();
+    } catch {
+      const chainId = config.chainId;
+      const supabase = createSupabaseService();
+      const storages = config.stacks.map((s) => s.storage.toLowerCase());
 
-    const { data: rows, error: posError } = await supabase
-      .from("perp_open_positions")
-      .select("*")
-      .eq("chain_id", chainId)
-      .in("vault_address", storages);
+      const { data: rows, error: posError } = await supabase
+        .from("perp_open_positions")
+        .select("*")
+        .eq("chain_id", chainId)
+        .in("vault_address", storages);
 
-    if (posError) throw posError;
+      if (posError) throw posError;
 
-    this.positions = {};
-    for (const row of (rows ?? []) as PerpOpenPositionRow[]) {
-      this.positions[row.position_key] = row;
+      this.positions = {};
+      for (const row of (rows ?? []) as PerpOpenPositionRow[]) {
+        this.positions[row.position_key] = row;
+      }
+      return this.count();
     }
-    return this.count();
   }
 
   private assertReady() {

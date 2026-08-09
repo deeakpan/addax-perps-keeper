@@ -7,7 +7,7 @@ import { runTriggerKeeper } from "./trigger-keeper";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** Testnet mode: UI syncs Supabase after txs; keeper only reloads DB + runs triggers. */
+/** Reload open positions + open limits from Goldsky (Supabase fallback inside stores). */
 async function reloadStoresFromSupabase() {
   await Promise.all([positionStore.reloadFromSupabase(), limitOrderStore.reloadFromSupabase()]);
 }
@@ -65,7 +65,7 @@ async function main() {
     lastBlock: hydrated.lastBlock,
     hasIndexerState: hydrated.hasIndexerState,
   });
-  log.info("indexer — disabled (testnet UI sync); keeper runs TP/SL/liq/limit triggers only");
+  log.info("positions — Goldsky subgraphs; limits — Supabase; keeper runs TP/SL/liq/limit triggers");
 
   await runPollLoop();
 }
