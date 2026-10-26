@@ -9,5 +9,5 @@ import { installDnsFallback } from "./dns-fallback";
 installDnsFallback();
 
 const cwd = process.cwd();
-loadEnv({ path: path.join(cwd, "..", ".env"), quiet: true });
-loadEnv({ path: path.join(cwd, ".env"), override: true, quiet: true });
+loadEnv({ path: path.join(cwd, "..", ".env") });
+loadEnv({ path: path.join(cwd, ".env"), override: true });

@@ -2,24 +2,6 @@ import { config } from "./config";
 import type { PerpOpenLimitOrderRow } from "./limit-order-store";
 import { limitOrderKey } from "./limit-order-store";
 
-const GOLDSKY_TRADING: Record<string, string> = {
-  USDC:
-    "https://api.goldsky.com/api/public/project_cmslbrg78r18d01vufxlm2gbb/subgraphs/gusdc-trading/1.0.0/gn",
-  WZKLTC:
-    "https://api.goldsky.com/api/public/project_cmslbrg78r18d01vufxlm2gbb/subgraphs/gwzkltc-trading/1.0.0/gn",
-  ADDX:
-    "https://api.goldsky.com/api/public/project_cmslbrg78r18d01vufxlm2gbb/subgraphs/gaddx-trading/1.0.0/gn",
-};
-
-const GOLDSKY_CALLBACKS: Record<string, string> = {
-  USDC:
-    "https://api.goldsky.com/api/public/project_cmskla92utbea01vm4nyr1kk2/subgraphs/addax-trades-gusdc/1.0.0/gn",
-  WZKLTC:
-    "https://api.goldsky.com/api/public/project_cmskla92utbea01vm4nyr1kk2/subgraphs/addax-trades-gwzkltc/1.0.0/gn",
-  ADDX:
-    "https://api.goldsky.com/api/public/project_cmskla92utbea01vm4nyr1kk2/subgraphs/addax-trades-gaddx/1.0.0/gn",
-};
-
 const MARKETS = [
   { symbol: "BTC", pairIndex: 0 },
   { symbol: "ETH", pairIndex: 1 },
@@ -28,7 +10,6 @@ const MARKETS = [
   { symbol: "TSLA", pairIndex: 4 },
   { symbol: "SPCX", pairIndex: 5 },
   { symbol: "SOL", pairIndex: 6 },
-  { symbol: "HYPE", pairIndex: 7 },
 ] as const;
 
 const LIMIT_OPEN = 3;
@@ -61,10 +42,11 @@ export async function fetchOpenLimitsFromGoldsky(): Promise<PerpOpenLimitOrderRo
 
   await Promise.all(
     config.stacks.map(async (stack) => {
-      const tradingUrl = GOLDSKY_TRADING[stack.id];
-      const callbacksUrl = GOLDSKY_CALLBACKS[stack.id];
-      if (!tradingUrl) return;
+      const tradingUrl = config.goldskyPerpsUrl;
+      const callbacksUrl = config.goldskyPerpsUrl;
       const storage = stack.storage.toLowerCase();
+      const tradingWhere = `where: { contractId__in: ["${stack.trading.toLowerCase()}"] }`;
+      const callbacksWhere = `where: { contractId__in: ["${stack.callbacks.toLowerCase()}"] }`;
 
       const data = await queryGoldsky<{
         openLimitPlaceds: {
@@ -91,13 +73,13 @@ export async function fetchOpenLimitsFromGoldsky(): Promise<PerpOpenLimitOrderRo
       }>(
         tradingUrl,
         `{
-          openLimitPlaceds(first: 1000, orderBy: block_number, orderDirection: asc) {
+          openLimitPlaceds(first: 1000, orderBy: block_number, orderDirection: asc, ${tradingWhere}) {
             id trader pairIndex index block_number
           }
-          openLimitCanceleds(first: 1000, orderBy: block_number, orderDirection: asc) {
+          openLimitCanceleds(first: 1000, orderBy: block_number, orderDirection: asc, ${tradingWhere}) {
             id trader pairIndex index block_number
           }
-          openLimitUpdateds(first: 1000, orderBy: block_number, orderDirection: asc) {
+          openLimitUpdateds(first: 1000, orderBy: block_number, orderDirection: asc, ${tradingWhere}) {
             id trader pairIndex index block_number
           }
         }`,
@@ -154,7 +136,7 @@ export async function fetchOpenLimitsFromGoldsky(): Promise<PerpOpenLimitOrderRo
           }>(
             callbacksUrl,
             `{
-              limitExecuteds(first: 1000, orderBy: block_number, orderDirection: asc) {
+              limitExecuteds(first: 1000, orderBy: block_number, orderDirection: asc, ${callbacksWhere}) {
                 id orderType limitIndex block_number t_trader t_pairIndex t_index
               }
             }`,

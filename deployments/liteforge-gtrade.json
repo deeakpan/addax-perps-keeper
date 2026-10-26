@@ -1,0 +1,134 @@
+{
+  "chainId": 4441,
+  "deployedAt": "2026-09-27T17:04:21.876Z",
+  "deployer": "0x956E8eB6Ec3C2F15B1e4625C7EAAcE7700b98c3F",
+  "deployBlock": 55269862,
+  "dia": {
+    "oracle": "0xEd7f45c29FE6676e1eB7096aD5D6966abd62Bd1a",
+    "addaxPriceFeed": "0xFf856a958eFA7965A4dFC2BFb09dDbc9EABe9aAb",
+    "officialDiaOracle": "0xEd7f45c29FE6676e1eB7096aD5D6966abd62Bd1a",
+    "maxPriceAgeSeconds": 1800,
+    "heartbeatSeconds": 1800,
+    "priceDecimals": 18
+  },
+  "tokens": {
+    "usdc": "0x5b16bB70F800E362A7A16642Ef4eA480E54CD884",
+    "addx": "0x0759B78454e6eb9f3fd171b675A2891EF653Ca52",
+    "wzkLtc": "0xbABDc477a5f9a957910e335f9A7145503f3B1DcF",
+    "legacyWzkLtc": "0x60A84eBC3483fEFB251B76Aea5B8458026Ef4bea"
+  },
+  "vaults": {
+    "gUSDC": "0x456cFE0aDbDb59a437228e71a835Ee2502585E9A",
+    "gWzkLTC": "0xfF5d7AE1be0FDf218c8a7fA736Be04134A840D2d",
+    "gADDX": "0x29727370FD5A4748a3DEdD3fCc072516CfDDEC86"
+  },
+  "contracts": {
+    "storage": "0x2ba052AB79A9495efb2f69B6D1446D96FffcE200",
+    "trading": "0x18229A1f7c924BB35BA0EE28024f8CBE7c6950fb",
+    "callbacks": "0x95cF174BB52B2cC1BEE161cafeCE2dA73c80D465",
+    "pairInfos": "0xaB40B4C6eEd3A6665D098deC62b4852cAeEF2440",
+    "pairsStorage": "0xCF5a7c0493Bb97701Fd8DA652A976B7BFD3b6F3e",
+    "priceAggregator": "0xEC26BD0E3Be33AbB08666A13d11766Dc1941D986",
+    "vault": "0x456cFE0aDbDb59a437228e71a835Ee2502585E9A",
+    "nft": "0x77b4294f024AF8DE2895e38EaeF47deDD8C171a4",
+    "nftRewards": "0x34Ca4C9b197e4FDD70c4cA32270068778AB2B60A",
+    "pool": "0x1485739f0Fbc95eE35dF3323B954003000365C29",
+    "staking": "0xA64A13CB9D40845508c9D3761192B30aaf97A9A3",
+    "feeds": {
+      "BTC": "0x5C26a378881D193c0d0b2Beff4b0B083084D3815",
+      "ETH": "0x560af37e962A7e364763d3cc5663B253f4FF15e2",
+      "LTC": "0x45F48187b90f341155D9701D69582918E7d82a89",
+      "XAU": "0x582bd29Bd9dF4F7784cdd106f3C8d18fCfBf7346",
+      "TSLA": "0xD69B07f5635aa0EDdd630B1447E7D68D9D930578",
+      "SPCX": "0xBa393819E7fA3DB5774970056CF962a7c95Db715",
+      "SOL": "0x23405be24a8849D1f51E4Bb6166840De18f05e74"
+    },
+    "gWzkLTCStack": {
+      "storage": "0x7159c5E6cDFc9BF00A72a47e1638A3c8390062E6",
+      "trading": "0x5927ED00AB628B28BAEa9d21e0e9cecFa640c2cA",
+      "callbacks": "0x0144A21A679035c79cDe373EfF01Add4CDBF2960",
+      "pairInfos": "0xB47f02Dd3E434Eb6724004C81CbAd1Ee34695244",
+      "pairsStorage": "0xD8bb86D156Fb4B12873186236D6157643C0c51C7",
+      "priceAggregator": "0x4EEb17021B33704eAB1d1830a467d253CB582995",
+      "vault": "0xfF5d7AE1be0FDf218c8a7fA736Be04134A840D2d",
+      "feeds": {
+        "BTC": "0x6F168A543f78E86D7237D8739CDd6Da200782f69",
+        "ETH": "0xd1764732e412B1cBa00d3c43261883523917C589",
+        "LTC": "0x87783177f2177c7669E2e464e849ae85e6B6166C",
+        "XAU": "0xcE8e49365338325805813287eb4aEBE55792c1C0",
+        "TSLA": "0x8Aa924e56d549c6c7cc29B6dbaA55eF1e10b4430",
+        "SPCX": "0xcD22F9490763F85b0EBFF0deE2896318295BcE0A",
+        "SOL": "0xB943422B5997f921BA5A419286f32b6C0a2bA199"
+      },
+      "nftRewards": "0x4432AB17939B99ea4740748f57E17B2e66106f50"
+    },
+    "gADDXStack": {
+      "storage": "0xF824198d6acAb70FBc9773874E92F63a630F2035",
+      "trading": "0x3C94ACfC00a91524E878249A458D11C00dA3a60e",
+      "callbacks": "0xd21ea28A94619c97f46e15ce042da593aD747220",
+      "pairInfos": "0x0AEdacc3AF583205E39E02Ef969844030454f207",
+      "pairsStorage": "0xF1243CFb053fe92589A4462B91B4e598f59b9261",
+      "priceAggregator": "0xe1551A391Ec2F421987563beD56C0Fe952270a8f",
+      "vault": "0x29727370FD5A4748a3DEdD3fCc072516CfDDEC86",
+      "feeds": {
+        "BTC": "0x1b4F28B2A0EB4830Bb2E3Fb88126351172427dBC",
+        "ETH": "0x6665c8Ce8A41b0F1FA2C2e02d2Af0BCb832a5935",
+        "LTC": "0xABAB91B9dEb892ad1DC3D4F429194D1E749B80Bd",
+        "XAU": "0x024bF9DE4EB37eBdADb191bE757509CDF296a166",
+        "TSLA": "0x379F1e70b6906eE4054468a39b1CD7EbDaD07d5c",
+        "SPCX": "0x7D4EeD174899fE2dFe2a390C81c9416b82E0cF8a",
+        "SOL": "0x67A95Be95b93B66A1807fef52F067a7C7344E84b"
+      },
+      "nftRewards": "0xC0ac8FeF8a75A49576DE4412Ca4F1f69F0AeB960"
+    }
+  },
+  "keeper": {
+    "nftId": 1,
+    "nftType": 1,
+    "wallet": "0x956E8eB6Ec3C2F15B1e4625C7EAAcE7700b98c3F"
+  },
+  "tradablePairs": [
+    {
+      "symbol": "BTC",
+      "pairIndex": 0,
+      "diaKey": "BTC/USD",
+      "feed": "0x5C26a378881D193c0d0b2Beff4b0B083084D3815"
+    },
+    {
+      "symbol": "ETH",
+      "pairIndex": 1,
+      "diaKey": "ETH/USD",
+      "feed": "0x560af37e962A7e364763d3cc5663B253f4FF15e2"
+    },
+    {
+      "symbol": "LTC",
+      "pairIndex": 2,
+      "diaKey": "LTC/USD",
+      "feed": "0x45F48187b90f341155D9701D69582918E7d82a89"
+    },
+    {
+      "symbol": "XAU",
+      "pairIndex": 3,
+      "diaKey": "XAU/USD",
+      "feed": "0x582bd29Bd9dF4F7784cdd106f3C8d18fCfBf7346"
+    },
+    {
+      "symbol": "TSLA",
+      "pairIndex": 4,
+      "diaKey": "TSLA",
+      "feed": "0xD69B07f5635aa0EDdd630B1447E7D68D9D930578"
+    },
+    {
+      "symbol": "SPCX",
+      "pairIndex": 5,
+      "diaKey": "SPCX",
+      "feed": "0xBa393819E7fA3DB5774970056CF962a7c95Db715"
+    },
+    {
+      "symbol": "SOL",
+      "pairIndex": 6,
+      "diaKey": "SOL/USD",
+      "feed": "0x23405be24a8849D1f51E4Bb6166840De18f05e74"
+    }
+  ]
+}

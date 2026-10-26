@@ -58,8 +58,12 @@ export type KeeperStackConfig = {
 };
 
 function loadDeployments(): GtradeDeployments | null {
-  const p = path.join(process.cwd(), "..", "contracts", "deployments", "liteforge-gtrade.json");
-  if (!existsSync(p)) return null;
+  const candidates = [
+    path.join(process.cwd(), "deployments", "liteforge-gtrade.json"),
+    path.join(process.cwd(), "..", "contracts", "deployments", "liteforge-gtrade.json"),
+  ];
+  const p = candidates.find(existsSync);
+  if (!p) return null;
   return JSON.parse(readFileSync(p, "utf8")) as GtradeDeployments;
 }
 
@@ -69,9 +73,18 @@ function loadRepoStacksConfig(): GtradeDeployments | null {
   return JSON.parse(readFileSync(p, "utf8")) as GtradeDeployments;
 }
 
+type SubgraphConfig = { endpoint?: string };
+
+function loadSubgraphConfig(): SubgraphConfig | null {
+  const p = path.join(process.cwd(), "config", "subgraphs.json");
+  if (!existsSync(p)) return null;
+  return JSON.parse(readFileSync(p, "utf8")) as SubgraphConfig;
+}
+
 const repoConfigured = loadRepoStacksConfig();
 const deployed = loadDeployments();
-const addressSource = repoConfigured ?? deployed;
+const addressSource = deployed ?? repoConfigured;
+const subgraphConfig = loadSubgraphConfig();
 
 function addrFromEnvOrDeploy(
   envKey: string,
@@ -235,6 +248,10 @@ const primary = stacks[0];
 
 export const config = {
   rpcUrl: process.env.PONDER_RPC_URL ?? "https://liteforge.rpc.caldera.xyz/http",
+  goldskyPerpsUrl:
+    process.env.GOLDSKY_PERPS_URL?.trim() ||
+    subgraphConfig?.endpoint ||
+    "https://api.goldsky.com/api/public/project_cmuk1ymm26sj4010g8key0hia/subgraphs/addax-litvm-liteforge/1.0.0/gn",
   chainId: 4441,
   keeperPrivateKey: normalizePrivateKey(
     process.env.KEEPER_PRIVATE_KEY ?? process.env.PERPS_KEEPER_PRIVATE_KEY,
@@ -251,6 +268,8 @@ export const config = {
   maxCatchupBlocks: parseInt(process.env.PERPS_MAX_CATCHUP_BLOCKS ?? "10000", 10),
   syncConfirmations: parseInt(process.env.PERPS_SYNC_CONFIRMATIONS ?? "3", 10),
   pollIntervalMs: parseInt(process.env.PERPS_POLL_INTERVAL_MS ?? "120000", 10),
+  marketOrderPollIntervalMs: parseInt(process.env.PERPS_MARKET_ORDER_POLL_INTERVAL_MS ?? "3000", 10),
+  marketOrderRecoveryBlocks: parseInt(process.env.PERPS_MARKET_ORDER_RECOVERY_BLOCKS ?? "10000", 10),
   rpcWsUrl:
     process.env.PERPS_RPC_WS_URL?.trim() ||
     process.env.PONDER_RPC_WS_URL?.trim() ||
@@ -268,8 +287,8 @@ export const config = {
   usdc: primary?.collateralToken,
   diaOracle:
     (process.env.PERPS_DIA_ORACLE as `0x${string}` | undefined) ??
-    (addressSource?.dia?.addaxPriceFeed as `0x${string}` | undefined) ??
     (addressSource?.dia?.oracle as `0x${string}` | undefined) ??
+    (addressSource?.dia?.addaxPriceFeed as `0x${string}` | undefined) ??
     DIA_ORACLE,
   keeperNftId: primary?.keeperNftId,
   keeperNftType: primary?.keeperNftType,

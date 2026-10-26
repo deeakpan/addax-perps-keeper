@@ -6,8 +6,9 @@ import { log } from "./logger";
 
 const BLOCK_CHUNK = 2_000n;
 
-/** gTrade AggregatorInterfaceV6.OrderType.MARKET_OPEN */
+/** gTrade AggregatorInterfaceV6.OrderType.MARKET_OPEN / MARKET_CLOSE. */
 const ORDER_MARKET_OPEN = 0;
+const ORDER_MARKET_CLOSE = 1;
 
 const tradingEventsAbi = [
   {
@@ -120,10 +121,11 @@ type PendingMarketOrderRow = readonly [
   bigint,
 ];
 
-async function isPendingOpen(
+async function isPendingMarketOrder(
   publicClient: PublicClient,
   storage: `0x${string}`,
   orderId: bigint,
+  open: boolean,
 ): Promise<boolean> {
   const row = (await publicClient.readContract({
     address: storage,
@@ -133,7 +135,7 @@ async function isPendingOpen(
   })) as PendingMarketOrderRow;
   const trade = row[0];
   const block = row[1];
-  return block > 0n && trade.leverage > 0n;
+  return block > 0n && (open ? trade.leverage > 0n : trade.leverage === 0n);
 }
 
 async function fetchMarketOrderInitiatedLogs(
@@ -186,7 +188,7 @@ async function fulfillPendingForStack(
 
   for (const entry of logs) {
     const args = decodeMarketOrderInitiated(entry);
-    if (!args || !args.open) {
+    if (!args) {
       result.skipped += 1;
       continue;
     }
@@ -194,25 +196,31 @@ async function fulfillPendingForStack(
     const { orderId, pairIndex } = args;
 
     try {
-      const pending = await isPendingOpen(publicClient, stack.storage, orderId);
+      const pending = await isPendingMarketOrder(publicClient, stack.storage, orderId, args.open);
       if (!pending) {
         result.skipped += 1;
         continue;
       }
 
-      const hash = await wallet.writeContract({
+      const orderType = args.open ? ORDER_MARKET_OPEN : ORDER_MARKET_CLOSE;
+      const { request } = await publicClient.simulateContract({
+        account: wallet.account!,
         address: stack.priceAggregator,
         abi: aggregatorAbi,
         functionName: "fulfillOrder",
-        args: [pairIndex, ORDER_MARKET_OPEN, orderId],
+        args: [pairIndex, orderType, orderId],
+      });
+      const hash = await wallet.writeContract({
+        ...request,
         account: wallet.account!,
         chain: wallet.chain,
       });
-      await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      if (receipt.status !== "success") throw new Error("fulfillOrder transaction reverted");
       result.fulfilled += 1;
       result.txs.push(hash);
       log.info(
-        `[${stack.id}] fulfilled pending open — order ${orderId} pair ${pairIndex} tx ${hash.slice(0, 10)}…`,
+        `[${stack.id}] fulfilled pending ${args.open ? "open" : "close"} — order ${orderId} pair ${pairIndex} tx ${hash.slice(0, 10)}…`,
       );
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -229,11 +237,11 @@ export async function fulfillPendingMarketOrders(
   fromBlock: bigint,
   toBlock: bigint,
 ): Promise<FulfillPendingResult> {
-  const perStack = await Promise.all(
-    config.stacks.map((stack) =>
-      fulfillPendingForStack(publicClient, wallet, stack, fromBlock, toBlock),
-    ),
-  );
+  // Use one wallet nonce stream across stacks; concurrent submissions can race nonce selection.
+  const perStack: FulfillPendingResult[] = [];
+  for (const stack of config.stacks) {
+    perStack.push(await fulfillPendingForStack(publicClient, wallet, stack, fromBlock, toBlock));
+  }
 
   return {
     scanned: perStack.reduce((n, r) => n + r.scanned, 0),

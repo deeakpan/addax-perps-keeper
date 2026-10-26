@@ -1,15 +1,6 @@
 import { config } from "./config";
 import type { PerpOpenPositionRow } from "./supabase";
 
-const GOLDSKY_SUBGRAPHS: Record<string, string> = {
-  USDC:
-    "https://api.goldsky.com/api/public/project_cmskla92utbea01vm4nyr1kk2/subgraphs/addax-trades-gusdc/1.0.0/gn",
-  WZKLTC:
-    "https://api.goldsky.com/api/public/project_cmskla92utbea01vm4nyr1kk2/subgraphs/addax-trades-gwzkltc/1.0.0/gn",
-  ADDX:
-    "https://api.goldsky.com/api/public/project_cmskla92utbea01vm4nyr1kk2/subgraphs/addax-trades-gaddx/1.0.0/gn",
-};
-
 const MARKETS = [
   { symbol: "BTC", pairIndex: 0 },
   { symbol: "ETH", pairIndex: 1 },
@@ -18,7 +9,6 @@ const MARKETS = [
   { symbol: "TSLA", pairIndex: 4 },
   { symbol: "SPCX", pairIndex: 5 },
   { symbol: "SOL", pairIndex: 6 },
-  { symbol: "HYPE", pairIndex: 7 },
 ] as const;
 
 const LIMIT_OPEN = 3;
@@ -102,20 +92,20 @@ export async function fetchOpenPositionsFromGoldsky(): Promise<PerpOpenPositionR
 
   await Promise.all(
     config.stacks.map(async (stack) => {
-      const url = GOLDSKY_SUBGRAPHS[stack.id];
-      if (!url) return;
+      const url = config.goldskyPerpsUrl;
       const storage = stack.storage.toLowerCase();
+      const callbacksWhere = `where: { contractId__in: ["${stack.callbacks.toLowerCase()}"] }`;
       const data = await queryGoldsky<{
         marketExecuteds: MarketExecutedEntity[];
         limitExecuteds: LimitExecutedEntity[];
       }>(
         url,
         `{
-          marketExecuteds(first: 1000, orderBy: block_number, orderDirection: asc) {
+          marketExecuteds(first: 1000, orderBy: block_number, orderDirection: asc, ${callbacksWhere}) {
             id open price positionSizeDai block_number
             t_trader t_pairIndex t_index t_buy t_leverage t_openPrice
           }
-          limitExecuteds(first: 1000, orderBy: block_number, orderDirection: asc) {
+          limitExecuteds(first: 1000, orderBy: block_number, orderDirection: asc, ${callbacksWhere}) {
             id orderType price positionSizeDai block_number
             t_trader t_pairIndex t_index t_buy t_leverage t_openPrice
           }

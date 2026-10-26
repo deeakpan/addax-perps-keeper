@@ -1,0 +1,20 @@
+{
+  "chainId": 4441,
+  "contractDeployBlock": 55269862,
+  "indexedFromBlock": 55272386,
+  "endpoint": "https://api.goldsky.com/api/public/project_cmuk1ymm26sj4010g8key0hia/subgraphs/addax-litvm-liteforge/1.0.0/gn",
+  "stacks": {
+    "USDC": {
+      "trading": "0x18229A1f7c924BB35BA0EE28024f8CBE7c6950fb",
+      "callbacks": "0x95cF174BB52B2cC1BEE161cafeCE2dA73c80D465"
+    },
+    "WZKLTC": {
+      "trading": "0x5927ED00AB628B28BAEa9d21e0e9cecFa640c2cA",
+      "callbacks": "0x0144A21A679035c79cDe373EfF01Add4CDBF2960"
+    },
+    "ADDX": {
+      "trading": "0x3C94ACfC00a91524E878249A458D11C00dA3a60e",
+      "callbacks": "0xd21ea28A94619c97f46e15ce042da593aD747220"
+    }
+  }
+}

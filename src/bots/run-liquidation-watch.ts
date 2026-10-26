@@ -3,6 +3,7 @@ import { getPublicClient, getKeeperWallet } from "../lib/chain";
 import { log } from "../lib/logger";
 import { limitOrderStore } from "../lib/limit-order-store";
 import { positionStore } from "../lib/position-store";
+import { fulfillPendingMarketOrders } from "../lib/fulfill-pending";
 import { runTriggerKeeper } from "./trigger-keeper";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -33,13 +34,41 @@ async function runTriggerSweep(triggerLabel: string) {
 }
 
 async function runPollLoop() {
+  let marketOrderCursor: bigint | null = null;
+  let lastTriggerSweepAt = 0;
+
   for (;;) {
     try {
-      await runTriggerSweep("trigger-only");
+      const publicClient = getPublicClient();
+      const head = await publicClient.getBlockNumber();
+      const fromBlock: bigint = marketOrderCursor === null
+        ? BigInt(Math.max(config.deployBlock ?? 0, Number(head) - config.marketOrderRecoveryBlocks))
+        : marketOrderCursor + 1n;
+
+      if (fromBlock <= head) {
+        if (marketOrderCursor === null) marketOrderCursor = fromBlock - 1n;
+        const result = await fulfillPendingMarketOrders(
+          publicClient,
+          getKeeperWallet(),
+          fromBlock,
+          head,
+        );
+        if (result.errors.length === 0) marketOrderCursor = head;
+        log.info(
+          `market-order scan block ${fromBlock}→${head} | scanned ${result.scanned} | fulfilled ${result.fulfilled} | skipped ${result.skipped} | errors ${result.errors.length}`,
+        );
+        for (const error of result.errors) log.error("market-order fulfillment failed", error);
+      }
+
+      const now = Date.now();
+      if (now - lastTriggerSweepAt >= config.pollIntervalMs) {
+        await runTriggerSweep("trigger-and-limit-orders");
+        lastTriggerSweepAt = now;
+      }
     } catch (e) {
-      log.error("tick failed", e);
+      log.error("auto keeper tick failed", e);
     }
-    await sleep(config.pollIntervalMs);
+    await sleep(config.marketOrderPollIntervalMs);
   }
 }
 
@@ -57,15 +86,15 @@ async function main() {
 
   log.watchStarted({
     mode: "poll",
+    intervalMs: config.marketOrderPollIntervalMs,
     stacks: config.stacks.map((s) => s.id).join(", "),
     storages: config.stacks.map((s) => s.storage).join(", "),
-    intervalMs: config.pollIntervalMs,
     positions: hydrated.positions,
     openLimits,
     lastBlock: hydrated.lastBlock,
     hasIndexerState: hydrated.hasIndexerState,
   });
-  log.info("positions — Goldsky subgraphs; limits — Supabase; keeper runs TP/SL/liq/limit triggers");
+  log.info("automatic keeper active — pending market orders polled continuously; TP/SL/liquidations/limits swept on interval");
 
   await runPollLoop();
 }
