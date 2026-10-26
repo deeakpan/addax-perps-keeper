@@ -8,6 +8,7 @@
     "serve": "next start --port 3010",
     "start": "tsx src/bots/run-liquidation-watch.ts",
     "once": "tsx src/bots/run-liquidation-keeper.ts",
+    "transfer:keeper-nft": "node scripts/transfer-keeper-nft.ts",
     "db:init": "tsx src/bots/ensure-db.ts",
     "db:reset": "tsx src/bots/reset-supabase.ts",
     "db:cursor": "tsx src/bots/reset-indexer-cursor.ts"
